@@ -13,3 +13,6 @@ hs_err_pid*
 MTPs-Main-Container.txt
 .settings/org.eclipse.jdt.core.prefs
 *.txt
+.idea
+*.iml
+src/jade
