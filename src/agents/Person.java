@@ -11,5 +11,4 @@ public class Person extends Agent {
 	public Person(String name) {
 		this.name = name;
 	}
-
 }
