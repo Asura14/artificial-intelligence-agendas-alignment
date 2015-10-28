@@ -14,9 +14,10 @@ public class Person extends Agent {
 	public Schedule schedule;
 	public String name;
 	
-	public Person(String name) {
-		this.name = name;
-	}
+	public Person() {
+		
+	}	
+	
 
 	private class PingPongBehaviour extends SimpleBehaviour {
 		private int n = 0;
@@ -51,6 +52,7 @@ public class Person extends Agent {
 	// método setup
 	protected void setup() {
 		String tipo = "";
+		
 		// obtém argumentos
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {

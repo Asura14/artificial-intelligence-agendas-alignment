@@ -1,14 +1,13 @@
 package models;
 
 import java.util.ArrayList;
-import agents.Person;
 
 public class Schedule {
 	
 	public enum Priority {
-		FREE, LOW, MEDIUM, HIGH
+		FREE, LOW, HIGH
 	}
-		
+	
 	Priority[] occupiedTime = new Priority[48];
 	
 	public ArrayList<Integer> getFreeTime() {
