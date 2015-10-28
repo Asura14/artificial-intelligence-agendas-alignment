@@ -8,7 +8,17 @@ public class Schedule {
 		FREE, LOW, HIGH
 	}
 	
-	Priority[] occupiedTime = new Priority[48];
+	Priority[] occupiedTime = new Priority[24];
+	
+	public void addToSchedule(Priority p, int time) {
+		occupiedTime[time] = p;
+	}
+	
+	public void reset() {
+		for(int i = 0; i < occupiedTime.length; i++) {
+			occupiedTime[i]= Priority.FREE;
+		}
+	}
 	
 	public ArrayList<Integer> getFreeTime() {
 		ArrayList<Integer> freeTime = new ArrayList<Integer>();

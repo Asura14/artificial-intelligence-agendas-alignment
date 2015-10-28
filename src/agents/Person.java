@@ -1,5 +1,14 @@
 package agents;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.spi.LocaleNameProvider;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.domain.DFService;
@@ -8,6 +17,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import models.*;
+import models.Schedule.Priority;
 
 public class Person extends Agent {
 	
@@ -15,9 +25,37 @@ public class Person extends Agent {
 	public String name;
 	
 	public Person() {
-		
+		schedule.reset();
+		addToSchedule();
 	}	
 	
+	public void addToSchedule() {
+		JSONObject data;
+		String json_str = "";
+		JSONObject scheduleJSON;
+		JSONArray low, high;
+		try {
+			json_str = readFile("./data.json", Charset.defaultCharset());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		data = new JSONObject(json_str);
+		scheduleJSON = data.getJSONObject(getLocalName());
+		low = scheduleJSON.getJSONArray("LOW");
+		high = scheduleJSON.getJSONArray("HIGH");
+		for (int i = 0; i < low.length(); i++) {
+			schedule.addToSchedule(Priority.LOW, low.getInt(i));
+		}
+		for (int i = 0; i < high.length(); i++) {
+			schedule.addToSchedule(Priority.HIGH, high.getInt(i));
+		}
+	}
+	
+	public static String readFile(String path, Charset encoding) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
+}
 
 	private class PingPongBehaviour extends SimpleBehaviour {
 		private int n = 0;
@@ -95,7 +133,6 @@ public class Person extends Agent {
 				send(msg);
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
-
 	}
 
 	// método takeDown
