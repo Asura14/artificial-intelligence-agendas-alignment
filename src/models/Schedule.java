@@ -20,6 +20,12 @@ public class Schedule {
 		}
 	}
 	
+	public void print() {
+		for (int i = 0; i < occupiedTime.length; i++) {
+			System.out.print("At " +  i + ": " + occupiedTime[i] + "; ");
+		}
+	}
+	
 	public ArrayList<Integer> getFreeTime() {
 		ArrayList<Integer> freeTime = new ArrayList<Integer>();
 		for(int i = 0; i < occupiedTime.length; i++) {

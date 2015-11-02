@@ -16,32 +16,36 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.wrapper.AgentContainer;
 import models.*;
 import models.Schedule.Priority;
 
 public class Person extends Agent {
 	
-	public Schedule schedule;
+	public Schedule schedule = new Schedule();
 	public String name;
 	
 	public Person() {
+		
+		
 		schedule.reset();
-		addToSchedule();
 	}	
 	
 	public void addToSchedule() {
+		this.name = this.getLocalName();
 		JSONObject data;
 		String json_str = "";
 		JSONObject scheduleJSON;
 		JSONArray low, high;
 		try {
-			json_str = readFile("./data.json", Charset.defaultCharset());
+			json_str = readFile("src/data.json", Charset.defaultCharset());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		data = new JSONObject(json_str);
-		scheduleJSON = data.getJSONObject(getLocalName());
+		scheduleJSON = data.getJSONObject(this.name);
+		System.out.println("Loading " + this.name + "'s schedule..." );
 		low = scheduleJSON.getJSONArray("LOW");
 		high = scheduleJSON.getJSONArray("HIGH");
 		for (int i = 0; i < low.length(); i++) {
@@ -50,6 +54,7 @@ public class Person extends Agent {
 		for (int i = 0; i < high.length(); i++) {
 			schedule.addToSchedule(Priority.HIGH, high.getInt(i));
 		}
+		this.schedule.print();
 	}
 	
 	public static String readFile(String path, Charset encoding) throws IOException {
@@ -71,14 +76,13 @@ public class Person extends Agent {
 				System.out.println(++n + " " + getLocalName() + ": recebi " + msg.getContent());
 				// cria resposta
 				ACLMessage reply = msg.createReply();
-				// preenche conteúdo da mensagem
+				// preenche conteudo da mensagem
 				if (msg.getContent().equals("ping"))
 					reply.setContent("pong");
 				else reply.setContent("ping");
 				// envia mensagem
 				send(reply);
 			}
-
 		}
 
 		// método done
@@ -96,7 +100,7 @@ public class Person extends Agent {
 		if (args != null && args.length > 0) {
 			tipo = (String) args[0];
 		} else {
-			System.out.println("Não especificou o tipo");
+			System.out.println("N�o especificou o tipo");
 		}
 
 		// regista agente no DF
@@ -133,6 +137,8 @@ public class Person extends Agent {
 				send(msg);
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
+		
+		addToSchedule();
 	}
 
 	// método takeDown
