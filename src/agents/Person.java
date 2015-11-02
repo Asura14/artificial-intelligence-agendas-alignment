@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.spi.LocaleNameProvider;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,16 +24,12 @@ public class Person extends Agent {
 	public String name;
 	
 	public Person() {
-		
-		
 		schedule.reset();
 	}	
 	
 	public void addToSchedule() {
 		this.name = this.getLocalName();
-		JSONObject data;
 		String json_str = "";
-		JSONObject scheduleJSON;
 		JSONArray low, high;
 		try {
 			json_str = readFile("src/data.json", Charset.defaultCharset());
@@ -43,8 +37,8 @@ public class Person extends Agent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		data = new JSONObject(json_str);
-		scheduleJSON = data.getJSONObject(this.name);
+		JSONObject data = new JSONObject(json_str);
+		JSONObject scheduleJSON = data.getJSONObject(this.name);
 		System.out.println("Loading " + this.name + "'s schedule..." );
 		low = scheduleJSON.getJSONArray("LOW");
 		high = scheduleJSON.getJSONArray("HIGH");
@@ -91,11 +85,11 @@ public class Person extends Agent {
 		}
 
 	}
-	// método setup
+	// todo setup
 	protected void setup() {
 		String tipo = "";
 		
-		// obtém argumentos
+		// obtem argumentos
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
 			tipo = (String) args[0];
