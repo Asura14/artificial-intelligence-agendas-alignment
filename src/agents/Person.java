@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,19 +16,32 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
+import jade.wrapper.ContainerController;
+import jade.wrapper.StaleProxyException;
 import models.*;
 import models.Schedule.Priority;
 
 public class Person extends Agent {
-	
+
 	public Schedule schedule = new Schedule();
 	public String name;
-	
+	public boolean manager;
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	public Person() {
+		this.manager = false;
+		schedule.reset();
+	}
+	public Person(boolean manager) {
+		this.manager = manager;
 		schedule.reset();
 	}	
-	
-	public void addToSchedule() {
+
+	public void addToSchedule(String m) {
+
 		this.name = this.getLocalName();
 		String json_str = "";
 		JSONArray low, high;
@@ -49,12 +63,34 @@ public class Person extends Agent {
 			schedule.addToSchedule(Priority.HIGH, high.getInt(i));
 		}
 		this.schedule.print();
+		System.out.println(m);
+		if(m != "not manager") {
+			this.manager = true;
+			System.out.println("OK");
+			for(int i = 0; data.names().length() > i; i++) {
+				if(data.names().getString(i) != this.name) {
+					//TODO FIX: Entra aqui mesmo quando os nomes s„o iguais :(
+					populateContainer(data.names().getString(i), data);
+					System.out.println("\n Added: " + data.names().getString(i));
+				}
+			}
+		}
 	}
-	
+
 	public static String readFile(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-}
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return new String(encoded, encoding);
+	}
+
+	public void populateContainer(String name, JSONObject data) {
+		ContainerController ac = getContainerController();
+		try {
+			AgentController aController = ac.createNewAgent(name,Person.class.getName(),null);
+			aController.start();
+		} catch (StaleProxyException e) {
+			e.printStackTrace();
+		}		
+	}
 
 	private class PingPongBehaviour extends SimpleBehaviour {
 		private int n = 0;
@@ -88,7 +124,7 @@ public class Person extends Agent {
 	// todo setup
 	protected void setup() {
 		String tipo = "";
-		
+
 		// obtem argumentos
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
@@ -131,8 +167,12 @@ public class Person extends Agent {
 				send(msg);
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
-		
-		addToSchedule();
+		if(args.length != 0 ) {
+			addToSchedule((String) args[0]);
+		} else {
+			addToSchedule("not manager");
+		}
+			
 	}
 
 	// m√©todo takeDown
