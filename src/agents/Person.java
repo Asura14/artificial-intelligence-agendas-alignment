@@ -129,7 +129,7 @@ public class Person extends Agent {
 		if (args != null && args.length > 0) {
 			tipo = (String) args[0];
 		} else {
-			System.out.println("Não especificou o tipo");
+			System.out.println("Not manager");
 		}
 
 		// regista agente no DF
@@ -166,7 +166,7 @@ public class Person extends Agent {
 				send(msg);
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
-		if(args.length != 0 ) {
+		if(args != null && args.length > 0) {
 			//TODO Mr. Workers no es here
 			addToSchedule((String) args[0]);
 		} else {
