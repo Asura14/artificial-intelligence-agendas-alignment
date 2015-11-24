@@ -68,8 +68,7 @@ public class Person extends Agent {
 			this.manager = true;
 			System.out.println("OK");
 			for(int i = 0; data.names().length() > i; i++) {
-				if(data.names().getString(i) != this.name) {
-					//TODO FIX: Entra aqui mesmo quando os nomes são iguais :(
+				if(!data.names().equals(this.name)) {
 					populateContainer(data.names().getString(i), data);
 					System.out.println("\n Added: " + data.names().getString(i));
 				}
@@ -168,6 +167,7 @@ public class Person extends Agent {
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
 		if(args.length != 0 ) {
+			//TODO Mr. Workers no es here
 			addToSchedule((String) args[0]);
 		} else {
 			addToSchedule("not manager");
