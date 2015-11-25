@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,6 +20,7 @@ import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
+import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 import models.*;
 import models.Schedule.Priority;
@@ -65,7 +68,6 @@ public class Person extends Agent {
 		this.schedule.print();
 		System.out.println(m);
 		if(m.equals("manager")) {
-			System.out.println("OK");
 			this.manager = true;
 			for(int i = 0; data.names().length() > i; i++) {
 				if(!data.names().get(i).equals(this.name)) {
@@ -73,7 +75,48 @@ public class Person extends Agent {
 					System.out.println("\n Added: " + data.names().getString(i));
 				}
 			}
+			createMeeting(this.name);
 		}
+	}
+	
+	public void createMeeting(String manager) {
+		String  meetingName;
+		System.out.println("Welcome! \nPlease insert the name the meeting: ");
+		Scanner scanner = new Scanner(System.in);
+		meetingName = scanner.nextLine();
+		Meeting newMeeting = new Meeting(meetingName);
+		System.out.println(meetingName + " has been created!");
+		System.out.println("Who will be attending this meeting?");
+		ArrayList<String> attendees = addAttendees(manager);
+		for(int i=0; i < attendees.size(); i++) {
+			ContainerController ac = getContainerController();
+			try {
+				if(ac.getAgent(attendees.get(i)) != null) {
+					newMeeting.addPerson(attendees.get(i));
+				} else {
+					System.out.println( attendees.get(i) + " does not exist in the system. \n");
+				}
+			} catch (ControllerException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+		System.out.println("Meeting" + meetingName + " has been created!");
+	}
+	
+	public ArrayList<String> addAttendees(String manager) {
+		boolean mrBoolean = true;
+		ArrayList<String> attendees = new ArrayList<String>();
+		while(mrBoolean) {
+			System.out.println("(type: ok to end) Attendee name: ");
+			Scanner scanner = new Scanner(System.in);
+			String newPerson = scanner.nextLine();
+			if(newPerson.equals("ok")) {
+				mrBoolean = false;
+			}
+			attendees.add(newPerson);
+		}
+		return attendees;
 	}
 
 	public static String readFile(String path, Charset encoding) throws IOException {
