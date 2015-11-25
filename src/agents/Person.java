@@ -64,11 +64,11 @@ public class Person extends Agent {
 		}
 		this.schedule.print();
 		System.out.println(m);
-		if(m != "not manager") {
-			this.manager = true;
+		if(m.equals("manager")) {
 			System.out.println("OK");
+			this.manager = true;
 			for(int i = 0; data.names().length() > i; i++) {
-				if(!data.names().equals(this.name)) {
+				if(!data.names().get(i).equals(this.name)) {
 					populateContainer(data.names().getString(i), data);
 					System.out.println("\n Added: " + data.names().getString(i));
 				}
@@ -120,7 +120,8 @@ public class Person extends Agent {
 		}
 
 	}
-	// todo setup
+	
+	
 	protected void setup() {
 		String tipo = "";
 
@@ -167,8 +168,7 @@ public class Person extends Agent {
 			} catch(FIPAException e) { e.printStackTrace(); }
 		}
 		if(args != null && args.length > 0) {
-			//TODO Mr. Workers no es here
-			addToSchedule((String) args[0]);
+			addToSchedule("manager");
 		} else {
 			addToSchedule("not manager");
 		}

@@ -22,7 +22,7 @@ public class Schedule {
 	
 	public void print() {
 		for (int i = 0; i < occupiedTime.length; i++) {
-			System.out.print("At " +  i + ": " + occupiedTime[i] + "; ");
+			System.out.print(occupiedTime[i] + " at " + i + "pm; ");
 		}
 	}
 	
