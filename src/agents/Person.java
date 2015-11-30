@@ -78,32 +78,25 @@ public class Person extends Agent {
 			createMeeting(this.name);
 		}
 	}
-	
+
 	public void createMeeting(String manager) {
 		String  meetingName;
-		System.out.println("Welcome! \nPlease insert the name the meeting: ");
+		System.out.println("Welcome! \nPlease insert the name of the meeting: ");
 		Scanner scanner = new Scanner(System.in);
 		meetingName = scanner.nextLine();
 		Meeting newMeeting = new Meeting(meetingName);
-		System.out.println(meetingName + " has been created!");
+		System.out.println("\n" + meetingName + " has been created!");
 		System.out.println("Who will be attending this meeting?");
 		ArrayList<String> attendees = addAttendees(manager);
+		ContainerController ac = getContainerController();
 		for(int i=0; i < attendees.size(); i++) {
-			ContainerController ac = getContainerController();
-			try {
-				if(ac.getAgent(attendees.get(i)) != null) {
-					newMeeting.addPerson(attendees.get(i));
-				} else {
-					System.out.println( attendees.get(i) + " does not exist in the system. \n");
-				}
-			} catch (ControllerException e) {
-				e.printStackTrace();
-				return;
-			}
+			newMeeting.addPerson(attendees.get(i));
 		}
-		System.out.println("Meeting" + meetingName + " has been created!");
+		System.out.println("Meeting: " + meetingName + " has been created!");
+		//TODO Agents send suggestions
+		
 	}
-	
+
 	public ArrayList<String> addAttendees(String manager) {
 		boolean mrBoolean = true;
 		ArrayList<String> attendees = new ArrayList<String>();
@@ -114,7 +107,8 @@ public class Person extends Agent {
 			if(newPerson.equals("ok")) {
 				mrBoolean = false;
 			}
-			attendees.add(newPerson);
+			String[] newString = newPerson.split("\\s+");
+			attendees.add(newString[0]);
 		}
 		return attendees;
 	}
@@ -145,7 +139,7 @@ public class Person extends Agent {
 		public void action() {
 			ACLMessage msg = blockingReceive();
 			if (msg.getPerformative() == ACLMessage.INFORM) {
-				System.out.println(++n + " " + getLocalName() + ": recebi " + msg.getContent());
+				System.out.println(++n + " " + getLocalName() + ": I received " + msg.getContent());
 				// cria resposta
 				ACLMessage reply = msg.createReply();
 				// preenche conteudo da mensagem
@@ -163,8 +157,8 @@ public class Person extends Agent {
 		}
 
 	}
-	
-	
+
+
 	protected void setup() {
 		String tipo = "";
 
@@ -215,7 +209,7 @@ public class Person extends Agent {
 		} else {
 			addToSchedule("not manager");
 		}
-			
+
 	}
 
 	// método takeDown
