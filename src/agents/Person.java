@@ -56,7 +56,6 @@ public class Person extends Agent {
 		}
 		JSONObject data = new JSONObject(json_str);
 		JSONObject scheduleJSON = data.getJSONObject(this.name);
-		System.out.println("Loading " + this.name + "'s schedule..." );
 		low = scheduleJSON.getJSONArray("LOW");
 		high = scheduleJSON.getJSONArray("HIGH");
 		for (int i = 0; i < low.length(); i++) {
@@ -65,9 +64,9 @@ public class Person extends Agent {
 		for (int i = 0; i < high.length(); i++) {
 			schedule.addToSchedule(Priority.HIGH, high.getInt(i));
 		}
-		this.schedule.print();
-		System.out.println(m);
+
 		if(m.equals("manager")) {
+			System.out.println("Loading " + this.name + "'s schedule..." );
 			this.manager = true;
 			for(int i = 0; data.names().length() > i; i++) {
 				if(!data.names().get(i).equals(this.name)) {
@@ -94,7 +93,7 @@ public class Person extends Agent {
 		}
 		System.out.println("Meeting: " + meetingName + " has been created!");
 		//TODO Agents send suggestions
-		
+
 	}
 
 	public ArrayList<String> addAttendees(String manager) {
