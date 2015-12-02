@@ -107,7 +107,11 @@ public class Person extends Agent {
 				mrBoolean = false;
 			}
 			String[] newString = newPerson.split("\\s+");
-			attendees.add(newString[0]);
+			if(attendees.indexOf(newString[0]) == -1) {
+				attendees.add(newString[0]);
+			} else {
+				System.out.println(newString[0] + " was already invited.");
+			}
 		}
 		return attendees;
 	}

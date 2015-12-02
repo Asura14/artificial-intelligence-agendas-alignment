@@ -30,4 +30,8 @@ public class Meeting {
 		attendees.add(person);
 	}
 
+	public boolean isPersonInvited(String name) {
+		return attendees.indexOf(name) != -1;
+	}
+
 }
