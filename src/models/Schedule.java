@@ -44,7 +44,7 @@ public class Schedule {
 	}
 
 	public boolean isAvailableDuring(int startTime, int duration) {
-		for(int i = startTime; i <= startTime + duration; i++)
+		for(int i = startTime; i < startTime + duration; i++)
 		{
 			if(this.occupiedTime[i] != Priority.FREE) {
 				return false;

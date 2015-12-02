@@ -30,6 +30,7 @@ public class Person extends Agent {
 	public Schedule schedule = new Schedule();
 	public String name;
 	public boolean manager;
+	public Meeting meeting;
 
 	public void setName(String name) {
 		this.name = name;
@@ -83,26 +84,25 @@ public class Person extends Agent {
 		System.out.println("Welcome! \nPlease insert the name of the meeting: ");
 		Scanner scanner = new Scanner(System.in);
 		meetingName = scanner.nextLine();
-		Meeting newMeeting = new Meeting(meetingName);
+		this.meeting = new Meeting(meetingName);
 		System.out.println("\n" + meetingName + " has been created!");
 		System.out.println("Who will be attending this meeting?");
 		ArrayList<String> attendees = addAttendees(manager);
 		ContainerController ac = getContainerController();
 		for(int i=0; i < attendees.size(); i++) {
-			newMeeting.addPerson(attendees.get(i));
+			this.meeting.addPerson(attendees.get(i));
 		}
 		System.out.println("Meeting: " + meetingName + " has been created!");
 		//TODO Agents send suggestions
 
 
-		// pesquisa DF por agentes "ping"
+		// DF Search for Agents "Not Manager"
 		DFAgentDescription template = new DFAgentDescription();
 		ServiceDescription sd1 = new ServiceDescription();
 		sd1.setType("Agente not manager");
 		template.addServices(sd1);
 		try {
 			DFAgentDescription[] result = DFService.search(this, template);
-			System.out.println("Criou template depois");
 
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			for(int i=0; i<result.length; ++i) {
@@ -110,10 +110,7 @@ public class Person extends Agent {
 				msg.addReceiver(result[i].getName());
 			}
 
-			System.out.println("nao enctrou manos");
-
-
-			msg.setContent("1,2");
+			msg.setContent("1,1");
 			send(msg);
 		} catch(FIPAException e) {
 			e.printStackTrace();
@@ -164,10 +161,7 @@ public class Person extends Agent {
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
 			tipo = (String) args[0];
-		} else {
-			System.out.println("Not manager");
 		}
-
 		if(tipo.equals("")) {
 			tipo = "not manager";
 		}
@@ -185,9 +179,7 @@ public class Person extends Agent {
 			e.printStackTrace();
 		}
 
-		System.out.println("Agente " + tipo);
-
-		// cria behaviour
+		// Create behaviour
 		MeetingBehaviour b = new MeetingBehaviour(this);
 		addBehaviour(b);
 
@@ -200,7 +192,7 @@ public class Person extends Agent {
 
 	}
 
-	// método takeDown
+	//TakeDown method
 	protected void takeDown() {
 		// retira registo no DF
 		try {
