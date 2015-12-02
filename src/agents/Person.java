@@ -94,6 +94,31 @@ public class Person extends Agent {
 		System.out.println("Meeting: " + meetingName + " has been created!");
 		//TODO Agents send suggestions
 
+
+		// pesquisa DF por agentes "ping"
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd1 = new ServiceDescription();
+		sd1.setType("Agente not manager");
+		template.addServices(sd1);
+		try {
+			DFAgentDescription[] result = DFService.search(this, template);
+			System.out.println("Criou template depois");
+
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			for(int i=0; i<result.length; ++i) {
+				System.out.println(result[i].getName());
+				msg.addReceiver(result[i].getName());
+			}
+
+			System.out.println("nao enctrou manos");
+
+
+			msg.setContent("1,2");
+			send(msg);
+		} catch(FIPAException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public ArrayList<String> addAttendees(String manager) {
@@ -131,36 +156,6 @@ public class Person extends Agent {
 		}		
 	}
 
-	private class PingPongBehaviour extends SimpleBehaviour {
-		private int n = 0;
-
-		// construtor do behaviour
-		public PingPongBehaviour(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			ACLMessage msg = blockingReceive();
-			if (msg.getPerformative() == ACLMessage.INFORM) {
-				System.out.println(++n + " " + getLocalName() + ": I received " + msg.getContent());
-				// cria resposta
-				ACLMessage reply = msg.createReply();
-				// preenche conteudo da mensagem
-				if (msg.getContent().equals("ping"))
-					reply.setContent("pong");
-				else reply.setContent("ping");
-				// envia mensagem
-				send(reply);
-			}
-		}
-
-		// método done
-		public boolean done() {
-			return n==10;
-		}
-
-	}
-
 
 	protected void setup() {
 		String tipo = "";
@@ -171,6 +166,10 @@ public class Person extends Agent {
 			tipo = (String) args[0];
 		} else {
 			System.out.println("Not manager");
+		}
+
+		if(tipo.equals("")) {
+			tipo = "not manager";
 		}
 
 		// regista agente no DF
@@ -186,27 +185,13 @@ public class Person extends Agent {
 			e.printStackTrace();
 		}
 
+		System.out.println("Agente " + tipo);
+
 		// cria behaviour
-		PingPongBehaviour b = new PingPongBehaviour(this);
+		MeetingBehaviour b = new MeetingBehaviour(this);
 		addBehaviour(b);
 
-		// toma a iniciativa se for agente "pong"
-		if(tipo.equals("pong")) {
-			// pesquisa DF por agentes "ping"
-			DFAgentDescription template = new DFAgentDescription();
-			ServiceDescription sd1 = new ServiceDescription();
-			sd1.setType("Agente ping");
-			template.addServices(sd1);
-			try {
-				DFAgentDescription[] result = DFService.search(this, template);
-				// envia mensagem "pong" inicial a todos os agentes "ping"
-				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-				for(int i=0; i<result.length; ++i)
-					msg.addReceiver(result[i].getName());
-				msg.setContent("pong");
-				send(msg);
-			} catch(FIPAException e) { e.printStackTrace(); }
-		}
+
 		if(args != null && args.length > 0) {
 			addToSchedule("manager");
 		} else {
