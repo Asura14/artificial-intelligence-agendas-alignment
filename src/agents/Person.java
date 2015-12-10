@@ -37,6 +37,7 @@ public class Person extends Agent {
 	public Integer startHour = 8;
 	public Integer endHour = 20;
 	public Integer currentHour;
+	public java.util.HashMap<Integer, ArrayList<String>> attendeesGoing = new java.util.HashMap<Integer, ArrayList<String>>();
 
 	public void setName(String name) {
 		this.name = name;
@@ -60,7 +61,6 @@ public class Person extends Agent {
 		try {
 			json_str = readFile("src/data.json", Charset.defaultCharset());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		JSONObject data = new JSONObject(json_str);
@@ -84,7 +84,8 @@ public class Person extends Agent {
 				}
 			}
 			for (int i = this.startHour; i <= this.endHour; i++) {
-				hourlyScore.put(i, 0);		
+				hourlyScore.put(i, 0);
+				attendeesGoing.put(i, new ArrayList<String>());
 			}
 			createMeeting(this.name);
 		}
@@ -100,13 +101,18 @@ public class Person extends Agent {
 				bestTime = i;
 				bestScore = score;
 			}
-		}		
-		System.out.println("The best time for this meeting is " + bestTime);
+		}
+		System.out.println("\n");
+		System.out.println("The best time for " + meeting.getName() +  " is at " + bestTime + ".");
+		System.out.println("The following people will be attending:");
+		for (int i = 0; i < attendeesGoing.get(bestTime).size(); i++) {
+			System.out.println(attendeesGoing.get(bestTime).get(i));
+		}
 	}
 
 	public void createMeeting(String manager) {
 		String  meetingName;
-		System.out.println("Welcome! \nPlease insert the name of the meeting: ");
+		System.out.println("Welcome!\nPlease insert the name of the meeting: ");
 		Scanner scanner = new Scanner(System.in);
 		meetingName = scanner.nextLine();
 		this.meeting = new Meeting(meetingName);
@@ -168,7 +174,6 @@ public class Person extends Agent {
 			ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
 			for(int i=0; i<result.length; ++i) {
 				if(meeting.getAttendees().contains(result[i].getName().getLocalName())) {
-					System.out.println(result[i].getName().getLocalName());
 					msg.addReceiver(result[i].getName());
 				}
 			}

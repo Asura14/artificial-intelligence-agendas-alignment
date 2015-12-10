@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Currency;
 
 import agents.Person;
@@ -26,14 +27,12 @@ public class MeetingBehaviour extends SimpleBehaviour {
 	public void action(){
 		ACLMessage msg = agent.blockingReceive();
 		if (msg.getPerformative() == ACLMessage.PROPOSE) {
-			System.out.println(agent.getLocalName() + ": I received " + msg.getContent());
-
+			//System.out.println(agent.getLocalName() + ": I received " + msg.getContent());
 			String[] split = msg.getContent().split(",");
 			Integer newScore = agent.schedule.isAvailableDuring(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-
 			ACLMessage reply = msg.createReply();
 
-			if(newScore == 3) {
+			if(newScore > 3) {
 				reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 			} else {
 				reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
@@ -45,6 +44,9 @@ public class MeetingBehaviour extends SimpleBehaviour {
 			this.attendees++;
 			//System.out.println("CONTENT: " + msg.getContent());
 			this.score += Integer.parseInt(msg.getContent());
+			ArrayList<String> newArray = this.agent.attendeesGoing.get(agent.currentHour);
+			newArray.add(msg.getSender().getLocalName());
+			this.agent.attendeesGoing.put(agent.currentHour, newArray);
 			
 		} else if (msg.getPerformative() == ACLMessage.REJECT_PROPOSAL){
 			this.attendees++;
