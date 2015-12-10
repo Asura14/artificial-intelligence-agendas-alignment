@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import org.json.JSONArray;
@@ -29,8 +30,13 @@ public class Person extends Agent {
 
 	public Schedule schedule = new Schedule();
 	public String name;
-	public boolean manager;
+	public Boolean manager;
 	public Meeting meeting;
+	public MeetingBehaviour b;
+	public java.util.HashMap<Integer, Integer> hourlyScore = new HashMap<Integer, Integer>();
+	public Integer startHour = 8;
+	public Integer endHour = 20;
+	public Integer currentHour;
 
 	public void setName(String name) {
 		this.name = name;
@@ -38,10 +44,12 @@ public class Person extends Agent {
 	public Person() {
 		this.manager = false;
 		schedule.reset();
+		currentHour = startHour;
 	}
 	public Person(boolean manager) {
 		this.manager = manager;
 		schedule.reset();
+		currentHour = startHour;
 	}	
 
 	public void addToSchedule(String m) {
@@ -75,8 +83,25 @@ public class Person extends Agent {
 					System.out.println("\n Added: " + data.names().getString(i));
 				}
 			}
+			for (int i = this.startHour; i <= this.endHour; i++) {
+				hourlyScore.put(i, 0);		
+			}
 			createMeeting(this.name);
 		}
+	}
+	
+	public void printBestCombination()
+	{
+		int bestScore = 0;
+		int bestTime = 0;
+		for (int i = this.startHour; i <= this.endHour; i++) {
+			int score = hourlyScore.get(i);
+			if(score > bestScore) {
+				bestTime = i;
+				bestScore = score;
+			}
+		}		
+		System.out.println("The best time for this meeting is " + bestTime);
 	}
 
 	public void createMeeting(String manager) {
@@ -85,37 +110,14 @@ public class Person extends Agent {
 		Scanner scanner = new Scanner(System.in);
 		meetingName = scanner.nextLine();
 		this.meeting = new Meeting(meetingName);
-		System.out.println("\n" + meetingName + " has been created!");
 		System.out.println("Who will be attending this meeting?");
 		ArrayList<String> attendees = addAttendees(manager);
-		ContainerController ac = getContainerController();
 		for(int i=0; i < attendees.size(); i++) {
 			this.meeting.addPerson(attendees.get(i));
 		}
 		System.out.println("Meeting: " + meetingName + " has been created!");
-		//TODO Agents send suggestions
-
-
-		// DF Search for Agents "Not Manager"
-		DFAgentDescription template = new DFAgentDescription();
-		ServiceDescription sd1 = new ServiceDescription();
-		sd1.setType("Agente not manager");
-		template.addServices(sd1);
-		try {
-			DFAgentDescription[] result = DFService.search(this, template);
-
-			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			for(int i=0; i<result.length; ++i) {
-				System.out.println(result[i].getName());
-				msg.addReceiver(result[i].getName());
-			}
-
-			msg.setContent("1,1");
-			send(msg);
-		} catch(FIPAException e) {
-			e.printStackTrace();
-		}
-
+		meeting.setMeetingLength();
+		sendMessage(startHour);
 	}
 
 	public ArrayList<String> addAttendees(String manager) {
@@ -152,7 +154,31 @@ public class Person extends Agent {
 			e.printStackTrace();
 		}		
 	}
+	
+	public void sendMessage(int time) {
 
+		// DF Search for Agents "Not Manager"
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd1 = new ServiceDescription();
+		sd1.setType("Agente not manager");
+		template.addServices(sd1);
+		try {
+			DFAgentDescription[] result = DFService.search(this, template);
+
+			ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
+			for(int i=0; i<result.length; ++i) {
+				if(meeting.getAttendees().contains(result[i].getName().getLocalName())) {
+					System.out.println(result[i].getName().getLocalName());
+					msg.addReceiver(result[i].getName());
+				}
+			}
+			msg.setContent(time + "," + Integer.toString(meeting.getDuration()));
+			send(msg);
+		} catch(FIPAException e) {
+			e.printStackTrace();
+		}		
+		
+	}
 
 	protected void setup() {
 		String tipo = "";
@@ -180,7 +206,7 @@ public class Person extends Agent {
 		}
 
 		// Create behaviour
-		MeetingBehaviour b = new MeetingBehaviour(this);
+		this.b = new MeetingBehaviour(this);
 		addBehaviour(b);
 
 

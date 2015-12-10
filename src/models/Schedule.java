@@ -43,14 +43,19 @@ public class Schedule {
 		return freeTime;
 	}
 
-	public boolean isAvailableDuring(int startTime, int duration) {
-		for(int i = startTime; i < startTime + duration; i++)
+	public Integer isAvailableDuring(int startTime, int duration) {
+		int time = 0;
+		int finalTime = startTime + duration;
+		for(int i = startTime; i < finalTime; i++)
 		{
-			if(this.occupiedTime[i] != Priority.FREE) {
-				return false;
+			if(this.occupiedTime[i] == Priority.FREE) {
+				time += 3;
+			} else if (this.occupiedTime[i] == Priority.LOW) {
+				time += 1;
+			} else {
+				time += 0;
 			}
 		}
-
-		return true;
+		return time;
 	}
 }
