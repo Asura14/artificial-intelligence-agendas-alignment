@@ -37,6 +37,7 @@ public class Person extends Agent {
 	public Integer startHour = 8;
 	public Integer endHour = 20;
 	public Integer currentHour;
+	public Integer bestTimeOverall;
 	public java.util.HashMap<Integer, ArrayList<String>> attendeesGoing = new java.util.HashMap<Integer, ArrayList<String>>();
 
 	public void setName(String name) {
@@ -102,12 +103,14 @@ public class Person extends Agent {
 				bestScore = score;
 			}
 		}
+		bestTimeOverall = bestTime;
 		System.out.println("\n");
 		System.out.println("The best time for " + meeting.getName() +  " is at " + bestTime + ".");
 		System.out.println("The following people will be attending:");
 		for (int i = 0; i < attendeesGoing.get(bestTime).size(); i++) {
 			System.out.println(attendeesGoing.get(bestTime).get(i));
 		}
+		System.out.println("\n");
 	}
 
 	public void createMeeting(String manager) {
@@ -183,6 +186,29 @@ public class Person extends Agent {
 			e.printStackTrace();
 		}		
 		
+	}
+	
+	public void sendFinalMessage(int time) {
+
+		// DF Search for Agents "Not Manager"
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd1 = new ServiceDescription();
+		sd1.setType("Agente not manager");
+		template.addServices(sd1);
+		try {
+			DFAgentDescription[] result = DFService.search(this, template);
+
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			for(int i=0; i<result.length; ++i) {
+				if(meeting.getAttendees().contains(result[i].getName().getLocalName())) {
+					msg.addReceiver(result[i].getName());
+				}
+			}
+			msg.setContent(time + "," + Integer.toString(meeting.getDuration()));
+			send(msg);
+		} catch(FIPAException e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected void setup() {

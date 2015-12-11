@@ -54,6 +54,9 @@ public class MeetingBehaviour extends SimpleBehaviour {
 			//System.out.println("CONTENT: " + msg.getContent());
 			this.score += Integer.parseInt(msg.getContent());
 			//System.out.println(agent.getLocalName() + ": I received bad combination from " + msg.getSender().getLocalName());
+		} else if (msg.getPerformative() == ACLMessage.INFORM){
+			String[] split = msg.getContent().split(",");
+			System.out.println(agent.getLocalName() + ": The meeting has been scheduled for " + split[0]);
 		} 
 	}
 
@@ -72,6 +75,7 @@ public class MeetingBehaviour extends SimpleBehaviour {
 			
 			if(agent.currentHour == agent.endHour || this.allGood) {
 				agent.printBestCombination();
+				agent.sendFinalMessage(agent.bestTimeOverall);
 				return 1;
 			}
 			
